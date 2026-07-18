@@ -28,9 +28,9 @@ Then restart ComfyUI.
 
 1. Add the node **Krea 2 LoRA Converter mybrolabs** (category: `loaders`).
 2. Pick the fal.ai LoRA file from the `loras` dropdown. The node inspects the file immediately and shows its format below the button:
-   - fal format detected → key count and rank are shown and the **Convert** button lights up.
+   - fal format detected → tensor count and rank are shown and the **Convert to ComfyUI** button lights up.
    - already ComfyUI format → the message says nothing needs converting and the button stays dimmed.
-3. Click **Convert**. The converted file is written to the same `loras` folder with a `_comfyui.safetensors` suffix (or a custom name if you set `output_name`). No queueing needed — though queueing the node also works, e.g. in API workflows.
+3. Click **Convert to ComfyUI**. The converted file is written to the same `loras` folder with a `_comfyui.safetensors` suffix (or a custom name if you set `output_name`). No queueing needed — though queueing the node also works, e.g. in API workflows.
 4. Select the converted file in your LoraLoader node (the dropdown refreshes automatically after a successful convert).
 
 ## Notes
