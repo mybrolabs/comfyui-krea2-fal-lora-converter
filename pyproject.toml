@@ -1,0 +1,12 @@
+[project]
+name = "comfyui-krea2-fal-lora-converter"
+version = "1.0.0"
+description = "ComfyUI node that converts fal.ai Krea 2 LoRA keys (base_model.model.*) to the ComfyUI format (diffusion_model.*)."
+license = { file = "LICENSE" }
+
+[project.urls]
+Repository = "https://github.com/cgpixol/comfyui-krea2-fal-lora-converter"
+
+[tool.comfy]
+PublisherId = "cgpixol"
+DisplayName = "Krea 2 LoRA Converter (fal → ComfyUI)"
