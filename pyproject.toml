@@ -8,5 +8,5 @@ license = { file = "LICENSE" }
 Repository = "https://github.com/mybrolabs/comfyui-krea2-fal-lora-converter"
 
 [tool.comfy]
-PublisherId = "cgpixol"
+PublisherId = "mybrolabs"
 DisplayName = "Krea 2 LoRA Converter (fal → ComfyUI)"
