@@ -38,8 +38,8 @@ class Krea2LoraConverterFal:
         if not fal_keys:
             sample = list(state_dict.keys())[:3]
             return (
-                "Already ComfyUI-compatible (not the fal format). "
-                f"Nothing to convert. Sample keys: {sample}",
+                "No fal.ai prefix found — this file already uses ComfyUI "
+                f"key names, so there is nothing to do. First keys: {sample}",
             )
 
         new_sd = {}
@@ -58,12 +58,12 @@ class Krea2LoraConverterFal:
         output_path = os.path.join(os.path.dirname(input_path), output_name)
 
         if os.path.exists(output_path) and not overwrite:
-            return (f"Output already exists: {output_name}. Set overwrite=true to replace.",)
+            return (f"{output_name} is already in your loras folder — enable overwrite to replace it.",)
 
         save_file(new_sd, output_path)
         return (
-            f"OK: {len(fal_keys)} keys converted "
-            f"(base_model.model. -> diffusion_model.). Saved: {output_name}",
+            f"OK: renamed {len(fal_keys)} keys from base_model.model.* "
+            f"to diffusion_model.* and wrote {output_name}",
         )
 
 

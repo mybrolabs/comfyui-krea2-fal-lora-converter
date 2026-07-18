@@ -37,7 +37,7 @@ app.registerExtension({
                 "height:100%;box-sizing:border-box;";
 
             const button = document.createElement("button");
-            button.textContent = "Convert";
+            button.textContent = "Convert to ComfyUI";
             button.style.cssText =
                 "border:none;border-radius:6px;padding:8px 0;width:100%;" +
                 "flex:0 0 auto;font-weight:600;font-size:13px;transition:filter .15s;";
@@ -54,7 +54,7 @@ app.registerExtension({
                 "border-radius:6px;padding:8px;font-size:12px;line-height:1.45;" +
                 `color:${C.info};flex:1;overflow-y:auto;` +
                 "white-space:pre-wrap;word-break:break-word;";
-            status.textContent = "Select a LoRA to check its format.";
+            status.textContent = "Pick a LoRA file above to scan its key format.";
 
             container.append(button, status);
 
@@ -100,11 +100,11 @@ app.registerExtension({
                 const lora = widgetValue("lora_name");
                 if (!lora) {
                     setButton(false);
-                    setStatus("No LoRA selected.", C.info);
+                    setStatus("No LoRA selected yet.", C.info);
                     return;
                 }
                 setButton(false);
-                setStatus("Checking " + lora + " ...", C.info);
+                setStatus("Scanning " + lora + " ...", C.info);
                 try {
                     const res = await api.fetchApi(
                         "/mybrolabs/krea2/inspect?lora=" + encodeURIComponent(lora)
@@ -114,16 +114,16 @@ app.registerExtension({
                         setStatus(data.error, C.error);
                     } else if (data.fal_format) {
                         setButton(true);
-                        const rank = data.rank != null ? `, rank ${data.rank}` : "";
+                        const rank = data.rank != null ? ` (rank ${data.rank})` : "";
                         setStatus(
-                            `✓ fal Krea 2 LoRA: ${data.fal_keys} keys${rank}.\n` +
-                                `Saves as: ${data.suggested_name}`,
+                            `✓ fal.ai PEFT format detected — ${data.fal_keys} tensors${rank}. ` +
+                                `Ready to convert.\nOutput file: ${data.suggested_name}`,
                             C.ok
                         );
                     } else {
                         setStatus(
-                            "Already ComfyUI-compatible (not the fal format). " +
-                                "Nothing to convert — it should load in ComfyUI directly.",
+                            "This file already uses ComfyUI key names — no conversion " +
+                                "needed, just load it with your LoraLoader as-is.",
                             C.warn
                         );
                     }
@@ -135,7 +135,7 @@ app.registerExtension({
             button.addEventListener("click", async () => {
                 if (!convertible) return;
                 setButton(false);
-                setStatus("Converting ...", C.info);
+                setStatus("Renaming keys and saving ...", C.info);
                 try {
                     const res = await api.fetchApi("/mybrolabs/krea2/convert", {
                         method: "POST",
