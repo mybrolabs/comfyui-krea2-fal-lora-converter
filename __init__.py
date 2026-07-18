@@ -1,4 +1,7 @@
+import json
 import os
+import struct
+
 import folder_paths
 from safetensors.torch import load_file, save_file
 
@@ -64,10 +67,84 @@ class Krea2LoraConverterFal:
         )
 
 
+def _read_safetensors_header(path):
+    """Read only the safetensors JSON header (key names + shapes), not the tensors."""
+    with open(path, "rb") as f:
+        header_len = struct.unpack("<Q", f.read(8))[0]
+        header = json.loads(f.read(header_len).decode("utf-8"))
+    header.pop("__metadata__", None)
+    return header
+
+
+try:
+    import asyncio
+
+    from aiohttp import web
+    from server import PromptServer
+
+    _routes = PromptServer.instance.routes
+
+    @_routes.get("/mybrolabs/krea2/inspect")
+    async def _krea2_inspect(request):
+        lora = request.rel_url.query.get("lora", "")
+        path = folder_paths.get_full_path("loras", lora)
+        if path is None:
+            return web.json_response({"error": f"File not found: {lora}"})
+
+        try:
+            header = _read_safetensors_header(path)
+        except Exception as e:
+            return web.json_response({"error": f"Cannot read safetensors header: {e}"})
+
+        prefix = "base_model.model."
+        fal_keys = [k for k in header if k.startswith(prefix)]
+        if not fal_keys:
+            return web.json_response({"fal_format": False})
+
+        rank = None
+        for k in fal_keys:
+            if k.endswith("lora_A.weight"):
+                shape = header[k].get("shape") or []
+                if shape:
+                    rank = shape[0]
+                break
+
+        base = os.path.splitext(os.path.basename(path))[0]
+        return web.json_response({
+            "fal_format": True,
+            "fal_keys": len(fal_keys),
+            "rank": rank,
+            "suggested_name": base + "_comfyui.safetensors",
+        })
+
+    @_routes.post("/mybrolabs/krea2/convert")
+    async def _krea2_convert(request):
+        data = await request.json()
+        node = Krea2LoraConverterFal()
+        loop = asyncio.get_running_loop()
+        status = await loop.run_in_executor(
+            None,
+            lambda: node.convert(
+                data.get("lora_name", ""),
+                data.get("output_name", ""),
+                bool(data.get("overwrite", False)),
+            )[0],
+        )
+        return web.json_response({"status": status})
+
+except Exception:
+    # Not running inside the ComfyUI server; the queue-based convert path still works.
+    pass
+
+
+WEB_DIRECTORY = "./web"
+
 NODE_CLASS_MAPPINGS = {
     "Krea2LoraConverterFal": Krea2LoraConverterFal,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "Krea2LoraConverterFal": "Krea 2 LoRA Converter (fal → ComfyUI)",
+    "Krea2LoraConverterFal": "Krea 2 LoRA Converter mybrolabs",
 }
+
+__all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS", "WEB_DIRECTORY"]
