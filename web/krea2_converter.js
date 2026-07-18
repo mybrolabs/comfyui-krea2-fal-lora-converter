@@ -33,13 +33,14 @@ app.registerExtension({
 
             const container = document.createElement("div");
             container.style.cssText =
-                "display:flex;flex-direction:column;gap:6px;padding:4px 2px;";
+                "display:flex;flex-direction:column;gap:6px;padding:4px 2px;" +
+                "height:100%;box-sizing:border-box;";
 
             const button = document.createElement("button");
             button.textContent = "Convert";
             button.style.cssText =
                 "border:none;border-radius:6px;padding:8px 0;width:100%;" +
-                "font-weight:600;font-size:13px;transition:filter .15s;";
+                "flex:0 0 auto;font-weight:600;font-size:13px;transition:filter .15s;";
             button.addEventListener("mouseenter", () => {
                 if (!button.disabled) button.style.filter = "brightness(1.1)";
             });
@@ -51,11 +52,30 @@ app.registerExtension({
             status.style.cssText =
                 `background:${C.boxBg};border:1px solid ${C.boxBorder};` +
                 "border-radius:6px;padding:8px;font-size:12px;line-height:1.45;" +
-                `color:${C.info};min-height:56px;white-space:pre-wrap;word-break:break-word;`;
+                `color:${C.info};flex:1;overflow-y:auto;` +
+                "white-space:pre-wrap;word-break:break-word;";
             status.textContent = "Select a LoRA to check its format.";
 
             container.append(button, status);
-            node.addDOMWidget("mybrolabs_ui", "div", container, { serialize: false });
+
+            // Fixed widget height so the node body actually encloses the
+            // button + status box instead of letting them spill past the edge.
+            const UI_HEIGHT = 150;
+            const uiWidget = node.addDOMWidget("mybrolabs_ui", "div", container, {
+                serialize: false,
+                getMinHeight: () => UI_HEIGHT,
+                getMaxHeight: () => UI_HEIGHT,
+            });
+            uiWidget.computeSize = (width) => [width ?? node.size[0], UI_HEIGHT];
+
+            requestAnimationFrame(() => {
+                const computed = node.computeSize();
+                node.setSize([
+                    Math.max(node.size[0], computed[0]),
+                    Math.max(node.size[1], computed[1]),
+                ]);
+                app.graph.setDirtyCanvas(true, true);
+            });
 
             let convertible = false;
 
