@@ -5,7 +5,7 @@ description = "ComfyUI node that converts fal.ai Krea 2 LoRA keys (base_model.mo
 license = { file = "LICENSE" }
 
 [project.urls]
-Repository = "https://github.com/cgpixol/comfyui-krea2-fal-lora-converter"
+Repository = "https://github.com/mybrolabs/comfyui-krea2-fal-lora-converter"
 
 [tool.comfy]
 PublisherId = "cgpixol"

@@ -19,7 +19,7 @@ When the prefix does not match, ComfyUI skips every key ("lora key not loaded") 
 
 ```
 cd ComfyUI/custom_nodes
-git clone https://github.com/<username>/comfyui-krea2-fal-lora-converter
+git clone https://github.com/mybrolabs/comfyui-krea2-fal-lora-converter
 ```
 
 Then restart ComfyUI.
