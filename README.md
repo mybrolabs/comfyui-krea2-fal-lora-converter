@@ -22,7 +22,7 @@ cd ComfyUI/custom_nodes
 git clone https://github.com/mybrolabs/comfyui-krea2-fal-lora-converter
 ```
 
-Then restart ComfyUI.
+Then restart ComfyUI. No extra dependencies are needed — the node only uses libraries that ship with ComfyUI.
 
 ## Usage
 
